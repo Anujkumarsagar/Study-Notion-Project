@@ -12,3 +12,4 @@ OTP model mei email bhejna hai DB ke entry hone se pahle mei bhejna chahta hu ji
 
 <-----^---------video-1----------^-------> 
 <!-- <---------------video-2------------------![forget Password](image.png)# Study-Notion-Project -->
+![Flow Dig](image-1.png)

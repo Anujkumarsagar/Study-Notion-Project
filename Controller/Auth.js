@@ -215,17 +215,60 @@ exports.Login = async (req, res) => {
 }
 
 //changePassword
-exports.changePassword = async(req, res)=> {
-    try {
-        //get data from req body
-        //get oldPassword, newPassword, confirmPassword
-        //validation
 
-        //update pwd in DB
-        //send mail - password update
-        // return response
+exports.changePassword = async (req, res) => {
+    try {
+        // Get data from req body
+        const { oldPassword, newPassword, confirmPassword } = req.body;
+
+        // Validation
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            return res.status(403).json({
+                success: false,
+                message: "All fields are mandatory"
+            });
+        }
+
+        // Check if the new password and confirm password match
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "New password and confirm password do not match"
+            });
+        }
+
+        // Fetch the user from the database
+        const user = await User.findById(req.user.id); // Assuming user ID is stored in req.user.id after authentication
+
+        // Check if the old password is correct
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Old password is incorrect"
+            });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the password in the database
+        user.password = hashedPassword;
+        await user.save();
+
+        // Optionally, send a confirmation email about the password change here
+
+        // Return response
+        return res.status(200).json({
+            success: true,
+            message: "Password updated successfully"
+        });
 
     } catch (error) {
-        console.log("Error in changePassword : ", error.message)
+        console.error("Error in changePassword: ", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
-}   
+};
